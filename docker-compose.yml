@@ -1,0 +1,22 @@
+version: "3"
+services:
+  demo-app:
+    build:
+      context: .
+    volumes:
+      - ./src:/usr/src/demo-app/src
+      - ./public:/usr/src/demo-app/public
+    ports:
+      - ${HOST_PORT}:3000
+    environment:
+      - PORT=3000
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile-test
+    ports:
+      - ${HOST_PORT}:3000
+    environment:
+      - PORT=3000
+    volumes:
+      - ./src:/usr/src/demo-app/src
