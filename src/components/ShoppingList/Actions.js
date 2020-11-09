@@ -30,19 +30,25 @@ const removeItem = async (rowId) => {
 };
 
 const BaseRowActions = ({
-    addSnackbar, row, removeItemRow,
+    row, removeItemRow, undoRemoveItemRow, submitUndoableAction,
 }) => {
 
     const handleRemove = useCallback(
         () => {
             removeItemRow(row);
-            removeItem(row.key);
-            addSnackbar({
-                message: `Removed ${getFieldValue(row, "name")}.`,
-                key: `${row.key}`,
-            });
+            submitUndoableAction(
+                row.key,
+                `Removed ${getFieldValue(row, "name")}.`,
+                () => {
+                    removeItem(row.key);
 
-        }, [addSnackbar, removeItemRow, row]);
+                },
+                () => {
+                    undoRemoveItemRow(row);
+                },
+                3000
+            );
+        }, [removeItemRow, row, submitUndoableAction, undoRemoveItemRow]);
 
 
     return (
@@ -67,7 +73,8 @@ const BaseRowActions = ({
 BaseRowActions.propTypes = {
     row: RowPropTypes,
     removeItemRow: PropTypes.func.isRequired,
-    // submitUndoableAction: PropTypes.func,
+    undoRemoveItemRow: PropTypes.func.isRequired,
+    submitUndoableAction: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = () => ({});
