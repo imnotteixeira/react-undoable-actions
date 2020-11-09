@@ -30,7 +30,7 @@ const removeItem = async (rowId) => {
 };
 
 const BaseRowActions = ({
-    row, removeItemRow, undoRemoveItemRow, submitUndoableAction,
+    addSnackbar, row, removeItemRow, undoRemoveItemRow, submitUndoableAction,
 }) => {
 
     const handleRemove = useCallback(
@@ -40,15 +40,21 @@ const BaseRowActions = ({
                 row.key,
                 `Removed ${getFieldValue(row, "name")}.`,
                 () => {
-                    removeItem(row.key);
-
+                    removeItem(row.key)
+                        .catch(() => {
+                            addSnackbar({
+                                message: `An unexpected error occurred. Could not remove ${getFieldValue(row, "name")}.`,
+                                key: `${row.key}-error`,
+                            });
+                            undoRemoveItemRow(row);
+                        });
                 },
                 () => {
                     undoRemoveItemRow(row);
                 },
                 3000
             );
-        }, [removeItemRow, row, submitUndoableAction, undoRemoveItemRow]);
+        }, [addSnackbar, removeItemRow, row, submitUndoableAction, undoRemoveItemRow]);
 
 
     return (
@@ -72,6 +78,7 @@ const BaseRowActions = ({
 
 BaseRowActions.propTypes = {
     row: RowPropTypes,
+    addSnackbar: PropTypes.func.isRequired,
     removeItemRow: PropTypes.func.isRequired,
     undoRemoveItemRow: PropTypes.func.isRequired,
     submitUndoableAction: PropTypes.func.isRequired,
